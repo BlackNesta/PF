@@ -1,20 +1,23 @@
--- | Implementarea unei cozi cu complexitate amortizata
-module Queue where
+-- | Abstracts the implementation details of a single-insertion, single-extraction queuelike structure with amortised complexity.
+module Real.Time.Queue where
 data Queue a = Queue [a] [a] deriving (Show, Eq)
 
+-- | A generic type class encapsulating a generic queuelike structure, that supports single-insertion and single-extraction
 class QueueOperations q where
-    -- | Construieste un coada vid
+    -- | Constructs an empty queue.
     newQ :: q a
-    -- | Verifica daca coada este vida
+    -- | Checks if the queue is empty.
     empty :: q a -> Bool
-    -- | Introduce un element in coada.
-    push :: q a -> a -> q a 
-    -- | Scoate din coada elementul front. Atentie!!!: Coada nu trebuie sa fie goala
+    -- | Inserts a single element into the 'Queue'.
+    push :: q a -> a -> q a
+    -- | Attempts to extract an element from the 'Queue'. 'Queue' must not be empty!
     pop :: q a -> q a
-    -- | Ia cel mai vechi element introdus in coada fara a face modificari in coada. Atentie!!!: Coada nu trebuie sa fie goala
+    -- | Gets the element that will next be extracted from the 'Queue'. 'Queue' must not be empty!
     front :: q a -> a
-    -- | Inverseaza elementele din coada
+    -- | Returns the elements of the 'Queue' in reverse order.
     rev :: q a -> q a
+    -- | Gets the size of the queue
+    size :: q a -> Int
 
 instance QueueOperations Queue where
     empty (Queue [] []) = True
@@ -26,3 +29,4 @@ instance QueueOperations Queue where
     front (Queue [] ys) = front (Queue (reverse ys) [])
     front (Queue (x : xs) ys) = x
     rev (Queue xs ys) = Queue ys xs
+    size (Queue xs ys) = (length xs) + (length ys)
