@@ -1,12 +1,16 @@
+-- | Abstracts the implementation details of a single-insertion, single-extraction queuelike structure with amortised complexity.
 module Real.Time.Queue where
--- | Implementarea unei cozi cu complexitate amortizata
-data Queue a = Queue [a] [a] deriving(Show)
+data Queue a = Queue [a] [a]
+
+instance Show a => Show (Queue a) where
+    show (Queue [] []) = "Nil"
+    show q = (show (front q)) ++ " <- " ++ (show (pop q))
 
 instance Eq a => Eq (Queue a) where
     (==) (Queue [] []) (Queue [] []) = True
     (==) q1 q2 = do
-        if (size q1) /= (size q2) then False
-        else if (front q1) /= (front q2) then False
+        if (/=) (size q1) (size q2) then False
+        else if (/=) (front q1)  (front q2) then False
         else (==) (pop q1) (pop q2) 
 
 -- | Constructs an empty queue.

@@ -23,7 +23,7 @@ size (Queue q) = length q
 
 forPush :: Eq a => (Integral) a => a -> a -> Queue a -> Queue a
 forPush i j q = if (i < j) then
-                if (j `mod` i == 0 && (empty q) == False) then
+                if (i `mod` 3 == 0 && (empty q) == False) then
                     forPush (i + 1) j (pop q)
                 else 
                    forPush (i + 1) j (push q i)
@@ -49,9 +49,10 @@ time_push = do
     putStrLn "Starting to push and pop..."
     time $ (forPush 1 100000 newQ) `seq` return()
     putStrLn "Done"
-
-time_rev = do 
+    
+time_rev = do
+    let q = forPush 1 100000 newQ
     putStrLn "Starting to reverse..."
-    time $ (forRev 1 10000000 newQ) `seq` return()
+    time $ (forRev 1 10 q) `seq` return()
     putStrLn "Done"
 

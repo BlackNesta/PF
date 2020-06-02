@@ -1,7 +1,6 @@
 import Test.QuickCheck
 import Text.Printf
 import System.CPUTime
--- | Implementarea unei cozi cu complexitate amortizata
 data Queue a = Queue [a] [a]
 
 instance Show a => Show (Queue a) where
@@ -14,6 +13,12 @@ instance Eq a => Eq (Queue a) where
         if (size q1) /= (size q2) then False
         else if (front q1) /= (front q2) then False
         else (==) (pop q1) (pop q2) 
+
+instance Arbitrary a => Arbitrary (Queue a) where
+    arbitrary = do
+        xs <- arbitrary
+        ys <- arbitrary
+        return (Queue xs ys)
 
 -- | Constructs an empty queue.
 newQ :: Queue a
@@ -38,12 +43,6 @@ rev (Queue xs ys) = Queue ys xs
 -- | Gets the size of the queue
 size :: Queue a -> Int
 size (Queue xs ys) = (length xs) + (length ys)
-
-instance Arbitrary a => Arbitrary (Queue a) where
-    arbitrary = do
-        xs <- arbitrary
-        ys <- arbitrary
-        return (Queue xs ys)
 
 valempty :: Queue a -> Bool -> Bool
 valempty (Queue [] []) True = True
@@ -87,7 +86,7 @@ testsize (Queue xs ys) = size (Queue xs ys) == (length xs) + (length ys)
 
 forPush :: Eq a => (Integral) a => a -> a -> Queue a -> Queue a
 forPush i j q = if (i < j) then
-                if (i `mod` 4 == 0 && (empty q) == False) then
+                if (i `mod` 3 == 0 && (empty q) == False) then
                     forPush (i + 1) j (pop q)
                 else 
                    forPush (i + 1) j (push q i)
@@ -115,6 +114,7 @@ time_push = do
     putStrLn "Done"
 
 time_rev = do 
+    let q = (forPush 1 100000 newQ)
     putStrLn "Starting to reverse..."
-    time $ (forRev 1 10000000 newQ) `seq` return()
+    time $ (forRev 1 10 q) `seq` return()
     putStrLn "Done"
