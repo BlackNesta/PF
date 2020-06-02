@@ -1,6 +1,12 @@
 import Test.QuickCheck
+import Text.Printf
+import System.CPUTime
 -- | Implementarea unei cozi cu complexitate amortizata
-data Queue a = Queue [a] [a] deriving(Show)
+data Queue a = Queue [a] [a]
+
+instance Show a => Show (Queue a) where
+    show (Queue [] []) = "Nil"
+    show q = (show (front q)) ++ " <- " ++ (show (pop q))
 
 instance Eq a => Eq (Queue a) where
     (==) (Queue [] []) (Queue [] []) = True
@@ -79,3 +85,36 @@ testfront2 q = do
 testsize :: Eq a => Queue a -> Bool
 testsize (Queue xs ys) = size (Queue xs ys) == (length xs) + (length ys)
 
+forPush :: Eq a => (Integral) a => a -> a -> Queue a -> Queue a
+forPush i j q = if (i < j) then
+                if (i `mod` 4 == 0 && (empty q) == False) then
+                    forPush (i + 1) j (pop q)
+                else 
+                   forPush (i + 1) j (push q i)
+            else (push q i)
+
+forRev :: Eq a => (Integral) a => a -> a -> Queue a -> Queue a
+forRev i j q = do 
+    if (i < j) then 
+        forRev (i + 1) j (rev q)
+    else
+        rev q
+
+time :: IO t -> IO t
+time a = do 
+    start <- getCPUTime
+    newq <- a
+    end <- getCPUTime
+    let diff = (fromIntegral (end - start)) / (10^12)
+    printf "Computation time: %0.9f sec\n" (diff :: Double)
+    return newq
+
+time_push = do 
+    putStrLn "Starting to push and pop..."
+    time $ (forPush 1 100000 newQ) `seq` return()
+    putStrLn "Done"
+
+time_rev = do 
+    putStrLn "Starting to reverse..."
+    time $ (forRev 1 10000000 newQ) `seq` return()
+    putStrLn "Done"
